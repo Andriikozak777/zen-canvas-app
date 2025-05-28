@@ -2115,43 +2115,43 @@
     let mediaRecorder;
     let recordedChunks = [];
 
+    // Кнопка записи
     const recordButton = document.createElement('button');
     recordButton.id = "recordButton";
     recordButton.className = "action-button";
     recordButton.style.background = "linear-gradient(145deg, #f56565, #c53030)";
-    recordButton.textContent = translations[currentLanguage].recordStart;
-    controlsPanel.appendChild(recordButton);
+    recordButton.textContent = "🎥 Начать запись";
+    document.getElementById("controlsPanel").appendChild(recordButton);
 
     recordButton.addEventListener('click', async () => {
         if (!mediaRecorder || mediaRecorder.state === "inactive") {
-            await startRecording(); // теперь async
-            recordButton.textContent = translations[currentLanguage].recordStop;
+            await startRecording();
+            recordButton.textContent = "⏹️ Остановить запись";
         } else if (mediaRecorder.state === "recording") {
             stopRecording();
-            recordButton.textContent = translations[currentLanguage].recordStart;
+            recordButton.textContent = "🎥 Начать запись";
         }
     });
 
     async function startRecording() {
         const canvas = document.getElementById('artCanvas');
-        const canvasStream = canvas.captureStream(60); // ⬆ 60 FPS
+        const canvasStream = canvas.captureStream(60); // 60 FPS
 
-        let combinedStream;
+        // Получаем аудиовыход от Tone.js
+        const audioCtx = Tone.context.rawContext;
+        const audioDestination = audioCtx.createMediaStreamDestination();
 
-        try {
-            // Получаем микрофон
-            const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            combinedStream = new MediaStream([
-                ...canvasStream.getVideoTracks(),
-                ...audioStream.getAudioTracks()
-            ]);
-        } catch (err) {
-            console.warn("⚠️ Не удалось получить звук, продолжаем только с видео");
-            combinedStream = canvasStream;
-        }
+        // Подключаем основной аудиовыход к потоку
+        Tone.getDestination().connect(audioDestination);
+
+        // Объединяем видео и аудио потоки
+        const combinedStream = new MediaStream([
+            ...canvasStream.getVideoTracks(),
+            ...audioDestination.stream.getAudioTracks()
+        ]);
 
         mediaRecorder = new MediaRecorder(combinedStream, {
-            mimeType: 'video/webm;codecs=vp9,opus'
+            mimeType: 'video/webm; codecs=vp9,opus'
         });
 
         mediaRecorder.ondataavailable = e => {
@@ -2163,23 +2163,24 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'zen-canvas-recording.webm';
+            a.download = 'zen-recording.webm';
             a.click();
             URL.revokeObjectURL(url);
             recordedChunks = [];
         };
 
         mediaRecorder.start();
-        console.log("🎥 Запись началась (60 FPS, со звуком если доступен)");
+        console.log("🔴 Запись началась (60 FPS + звук из Tone.js)");
     }
 
     function stopRecording() {
         if (mediaRecorder && mediaRecorder.state === "recording") {
             mediaRecorder.stop();
-            console.log("⏹️ Запись остановлена");
+            console.log("🟢 Запись остановлена");
         }
     }
 </script>
+
 
 </body>
 </html>

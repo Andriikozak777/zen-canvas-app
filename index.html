@@ -998,6 +998,13 @@
             document.getElementById('clearCanvasButton').textContent = currentTranslation.clearCanvasButton;
             document.getElementById('screenshotButton').textContent = currentTranslation.screenshotButton;
             document.getElementById('resetSettingsButton').textContent = currentTranslation.resetSettingsButton;
+
+                if (document.getElementById("recordButton")) {
+        recordButton.textContent = (mediaRecorder && mediaRecorder.state === "recording")
+            ? translations[langCode].recordButtonStop
+            : translations[langCode].recordButtonStart;
+    }
+
             
             // Обновляем текст кнопки меню
             menuToggleButton.textContent = controlsPanel.classList.contains('visible') ? currentTranslation.menuButtonClose : currentTranslation.menuButtonOpen;

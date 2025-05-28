@@ -891,9 +891,8 @@
         // --- Объект для переводов ---
         const translations = {
             ru: {
-                recordStart: "🎥 Начать запись",
-                recordStop: "⏹️ Остановить запись",
-                recording: "🔴 Идёт запись"
+                recordStart: '⏺️ Запись видео',
+                recordStop: '⏹️ Остановить запись',
                 overlayTitle: 'Дзен-Холст',
                 overlayText: 'Нажмите "Старт", чтобы начать медитативную мелодию и творить визуальное искусство.',
                 startButton: 'Старт',
@@ -944,9 +943,8 @@
             
             },
             uk: {
-                recordStart: '🎥 Запис відео',
+                recordStart: '⏺️ Запис відео',
                 recordStop: '⏹️ Зупинити запис',
-                recording: "🔴 Йде запис" 
                 overlayTitle: 'Дзен-Полотно',
                 overlayText: 'Натисніть "Старт", щоб розпочати медитативну мелодію та творити візуальне мистецтво.',
                 startButton: 'Старт',
@@ -996,9 +994,8 @@
                 audioStartError: 'Не вдалося запустити. Будь ласка, спробуйте знову або перевірте налаштування браузера.',
             },
             en: {
-                recordStart: '🎥 Start Recording',
+                recordStart: '⏺️ Start Recording',
                 recordStop: '⏹️ Stop Recording',
-                recording: "🔴 Recording in progress"
                 overlayTitle: 'Zen Canvas',
                 overlayText: 'Click "Start" to begin a meditative melody and create visual art.',
                 startButton: 'Start',
@@ -2115,55 +2112,32 @@
 
 </script>
     <script>
+    // --- ВИДЕОЗАПИСЬ ХОЛСТА ---  
     let mediaRecorder;
     let recordedChunks = [];
 
-    // === КНОПКА "СТАРТ" ===
-    const startButton = document.getElementById('startButton');
-    startButton.addEventListener('click', async () => {
-        await Tone.start(); // 🔥 Обязательно!
-        document.getElementById('overlay').classList.add('hidden');
-        console.log("🎵 Tone.js активирован");
-        // Здесь можешь запускать музыку, анимации и т.п.
-    });
-
-    // === КНОПКА ЗАПИСИ ===
     const recordButton = document.createElement('button');
     recordButton.id = "recordButton";
     recordButton.className = "action-button";
     recordButton.style.background = "linear-gradient(145deg, #f56565, #c53030)";
-    recordButton.textContent = translations[currentLanguage]?.recordStart || "🎥 Начать запись";
-    document.getElementById("controlsPanel").appendChild(recordButton);
+    recordButton.textContent = translations[currentLanguage].recordStart;
+    controlsPanel.appendChild(recordButton);
 
-    recordButton.addEventListener('click', async () => {
+    recordButton.addEventListener('click', () => {
         if (!mediaRecorder || mediaRecorder.state === "inactive") {
-            await startRecording();
-            recordButton.textContent = translations[currentLanguage]?.recordStop || "⏹️ Остановить запись";
+            startRecording();
+            recordButton.textContent = translations[currentLanguage].recordStop;
         } else if (mediaRecorder.state === "recording") {
             stopRecording();
-            recordButton.textContent = translations[currentLanguage]?.recordStart || "🎥 Начать запись";
+            recordButton.textContent = translations[currentLanguage].recordStart;
         }
     });
 
-    // === ЗАПУСК ЗАПИСИ ===
-    async function startRecording() {
-        const canvas = document.getElementById('artCanvas');
-        const canvasStream = canvas.captureStream(60); // 🎥 60 FPS
+    function startRecording() {
+        const stream = canvas.captureStream(30);
+        mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
 
-        const audioCtx = Tone.context.rawContext;
-        const audioDestination = audioCtx.createMediaStreamDestination();
-        Tone.getDestination().connect(audioDestination); // 🔊 Включаем звук
-
-        const combinedStream = new MediaStream([
-            ...canvasStream.getVideoTracks(),
-            ...audioDestination.stream.getAudioTracks()
-        ]);
-
-        mediaRecorder = new MediaRecorder(combinedStream, {
-            mimeType: 'video/webm;codecs=vp9,opus'
-        });
-
-        mediaRecorder.ondataavailable = (e) => {
+        mediaRecorder.ondataavailable = e => {
             if (e.data.size > 0) recordedChunks.push(e.data);
         };
 
@@ -2172,41 +2146,21 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'zen-recording.webm';
+            a.download = 'zen-canvas-recording.webm';
             a.click();
             URL.revokeObjectURL(url);
             recordedChunks = [];
-
-            const status = document.getElementById("recordingStatus");
-            if (status) status.remove();
         };
 
         mediaRecorder.start();
-        console.log("🔴 Запись началась");
-
-        // === Индикатор записи на экране ===
-        const status = document.createElement("div");
-        status.id = "recordingStatus";
-        status.style.position = "fixed";
-        status.style.top = "1rem";
-        status.style.right = "1rem";
-        status.style.background = "red";
-        status.style.color = "white";
-        status.style.padding = "0.5rem 1rem";
-        status.style.borderRadius = "0.5rem";
-        status.style.zIndex = "9999";
-        status.textContent = translations[currentLanguage]?.recording || "🔴 Идёт запись";
-        document.body.appendChild(status);
     }
 
-    // === ОСТАНОВКА ЗАПИСИ ===
     function stopRecording() {
         if (mediaRecorder && mediaRecorder.state === "recording") {
             mediaRecorder.stop();
-            console.log("🟢 Запись остановлена");
         }
     }
-</script>
 
+</script>
 </body>
 </html>

@@ -5,8 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Дзен-Холст: Максимально Улучшенная Версия</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js">
+    
     let mediaRecorder;
     let recordedChunks = [];
+
+    // Подготовка аудио-выхода для записи
+    const audioDestination = Tone.getContext().rawContext.createMediaStreamDestination();
+
+    // Подключаем synth к аудио-выходу
+    Tone.loaded().then(() => {
+        if (synth) synth.connect(audioDestination);
+        if (interactionSynth) interactionSynth.connect(audioDestination);
+        if (mazeSynth) mazeSynth.connect(audioDestination);
+    });
 
     const recordButton = document.createElement('button');
     recordButton.id = "recordButton";
@@ -26,8 +37,15 @@
     });
 
     function startRecording() {
-        const stream = canvas.captureStream(30);
-        mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+        const canvasStream = canvas.captureStream(60); // 60 FPS
+        const audioStream = audioDestination.stream;
+
+        const combinedStream = new MediaStream([
+            ...canvasStream.getVideoTracks(),
+            ...audioStream.getAudioTracks()
+        ]);
+
+        mediaRecorder = new MediaRecorder(combinedStream, { mimeType: 'video/webm' });
 
         mediaRecorder.ondataavailable = e => {
             if (e.data.size > 0) recordedChunks.push(e.data);
@@ -52,11 +70,23 @@
             mediaRecorder.stop();
         }
     }
+}
 
 </script>
     <script src="https://cdn.tailwindcss.com">
+    
     let mediaRecorder;
     let recordedChunks = [];
+
+    // Подготовка аудио-выхода для записи
+    const audioDestination = Tone.getContext().rawContext.createMediaStreamDestination();
+
+    // Подключаем synth к аудио-выходу
+    Tone.loaded().then(() => {
+        if (synth) synth.connect(audioDestination);
+        if (interactionSynth) interactionSynth.connect(audioDestination);
+        if (mazeSynth) mazeSynth.connect(audioDestination);
+    });
 
     const recordButton = document.createElement('button');
     recordButton.id = "recordButton";
@@ -76,8 +106,15 @@
     });
 
     function startRecording() {
-        const stream = canvas.captureStream(30);
-        mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+        const canvasStream = canvas.captureStream(60); // 60 FPS
+        const audioStream = audioDestination.stream;
+
+        const combinedStream = new MediaStream([
+            ...canvasStream.getVideoTracks(),
+            ...audioStream.getAudioTracks()
+        ]);
+
+        mediaRecorder = new MediaRecorder(combinedStream, { mimeType: 'video/webm' });
 
         mediaRecorder.ondataavailable = e => {
             if (e.data.size > 0) recordedChunks.push(e.data);
@@ -102,6 +139,7 @@
             mediaRecorder.stop();
         }
     }
+}
 
 </script>
     <style>
@@ -2062,8 +2100,19 @@
             updateGameInstructions();
         };
     
+    
     let mediaRecorder;
     let recordedChunks = [];
+
+    // Подготовка аудио-выхода для записи
+    const audioDestination = Tone.getContext().rawContext.createMediaStreamDestination();
+
+    // Подключаем synth к аудио-выходу
+    Tone.loaded().then(() => {
+        if (synth) synth.connect(audioDestination);
+        if (interactionSynth) interactionSynth.connect(audioDestination);
+        if (mazeSynth) mazeSynth.connect(audioDestination);
+    });
 
     const recordButton = document.createElement('button');
     recordButton.id = "recordButton";
@@ -2083,8 +2132,15 @@
     });
 
     function startRecording() {
-        const stream = canvas.captureStream(30);
-        mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+        const canvasStream = canvas.captureStream(60); // 60 FPS
+        const audioStream = audioDestination.stream;
+
+        const combinedStream = new MediaStream([
+            ...canvasStream.getVideoTracks(),
+            ...audioStream.getAudioTracks()
+        ]);
+
+        mediaRecorder = new MediaRecorder(combinedStream, { mimeType: 'video/webm' });
 
         mediaRecorder.ondataavailable = e => {
             if (e.data.size > 0) recordedChunks.push(e.data);
@@ -2109,21 +2165,24 @@
             mediaRecorder.stop();
         }
     }
+}
 
 </script>
     <script>
     // --- ВИДЕОЗАПИСЬ ХОЛСТА ---
-    let mediaRecorder;
-    
-
-    
-
-    
-
-    
     
     let mediaRecorder;
     let recordedChunks = [];
+
+    // Подготовка аудио-выхода для записи
+    const audioDestination = Tone.getContext().rawContext.createMediaStreamDestination();
+
+    // Подключаем synth к аудио-выходу
+    Tone.loaded().then(() => {
+        if (synth) synth.connect(audioDestination);
+        if (interactionSynth) interactionSynth.connect(audioDestination);
+        if (mazeSynth) mazeSynth.connect(audioDestination);
+    });
 
     const recordButton = document.createElement('button');
     recordButton.id = "recordButton";
@@ -2143,8 +2202,15 @@
     });
 
     function startRecording() {
-        const stream = canvas.captureStream(30);
-        mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+        const canvasStream = canvas.captureStream(60); // 60 FPS
+        const audioStream = audioDestination.stream;
+
+        const combinedStream = new MediaStream([
+            ...canvasStream.getVideoTracks(),
+            ...audioStream.getAudioTracks()
+        ]);
+
+        mediaRecorder = new MediaRecorder(combinedStream, { mimeType: 'video/webm' });
 
         mediaRecorder.ondataavailable = e => {
             if (e.data.size > 0) recordedChunks.push(e.data);
@@ -2169,6 +2235,7 @@
             mediaRecorder.stop();
         }
     }
+}
 
 </script>
 </body>

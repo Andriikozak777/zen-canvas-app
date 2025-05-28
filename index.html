@@ -2118,7 +2118,16 @@
     let mediaRecorder;
     let recordedChunks = [];
 
-    // Добавляем кнопку записи
+    // === КНОПКА "СТАРТ" ===
+    const startButton = document.getElementById('startButton');
+    startButton.addEventListener('click', async () => {
+        await Tone.start(); // 🔥 Обязательно!
+        document.getElementById('overlay').classList.add('hidden');
+        console.log("🎵 Tone.js активирован");
+        // Здесь можешь запускать музыку, анимации и т.п.
+    });
+
+    // === КНОПКА ЗАПИСИ ===
     const recordButton = document.createElement('button');
     recordButton.id = "recordButton";
     recordButton.className = "action-button";
@@ -2136,26 +2145,19 @@
         }
     });
 
+    // === ЗАПУСК ЗАПИСИ ===
     async function startRecording() {
         const canvas = document.getElementById('artCanvas');
-        const canvasStream = canvas.captureStream(60); // 60 FPS
+        const canvasStream = canvas.captureStream(60); // 🎥 60 FPS
 
-        // Убедимся, что Tone.js активен
-        await Tone.start();
-
-        // Подключение аудио из Tone.js
         const audioCtx = Tone.context.rawContext;
         const audioDestination = audioCtx.createMediaStreamDestination();
-        Tone.getDestination().connect(audioDestination);
+        Tone.getDestination().connect(audioDestination); // 🔊 Включаем звук
 
-        // Объединяем видео и аудио
         const combinedStream = new MediaStream([
             ...canvasStream.getVideoTracks(),
             ...audioDestination.stream.getAudioTracks()
         ]);
-
-        // Проверим звук
-        console.log("🎧 Audio tracks:", audioDestination.stream.getAudioTracks());
 
         mediaRecorder = new MediaRecorder(combinedStream, {
             mimeType: 'video/webm;codecs=vp9,opus'
@@ -2175,15 +2177,14 @@
             URL.revokeObjectURL(url);
             recordedChunks = [];
 
-            // Убираем индикатор
             const status = document.getElementById("recordingStatus");
             if (status) status.remove();
         };
 
         mediaRecorder.start();
-        console.log("🔴 Запись началась (60 FPS + звук)");
+        console.log("🔴 Запись началась");
 
-        // Показать индикатор на экране
+        // === Индикатор записи на экране ===
         const status = document.createElement("div");
         status.id = "recordingStatus";
         status.style.position = "fixed";
@@ -2198,6 +2199,7 @@
         document.body.appendChild(status);
     }
 
+    // === ОСТАНОВКА ЗАПИСИ ===
     function stopRecording() {
         if (mediaRecorder && mediaRecorder.state === "recording") {
             mediaRecorder.stop();
@@ -2205,8 +2207,6 @@
         }
     }
 </script>
-
-
 
 </body>
 </html>

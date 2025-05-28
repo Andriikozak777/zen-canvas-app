@@ -871,59 +871,6 @@ resetSettingsButton.addEventListener('click', () => {
     clearCanvasButton.click();
 });
 
-// --- Запись видео с canvas ---
-let mediaRecorder;
-let recordedChunks = [];
-let isRecording = false;
-
-const recordButton = document.getElementById('recordButton');
-
-recordButton.addEventListener('click', () => {
-    if (!isRecording) {
-        startRecording();
-    } else {
-        stopRecording();
-    }
-});
-
-function startRecording() {
-    const canvasStream = canvas.captureStream(30); // 30 FPS
-    mediaRecorder = new MediaRecorder(canvasStream, { mimeType: 'video/webm' });
-
-    recordedChunks = [];
-
-    mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-            recordedChunks.push(event.data);
-        }
-    };
-
-    mediaRecorder.onstop = () => {
-        const blob = new Blob(recordedChunks, { type: 'video/webm' });
-        const url = URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'zen_canvas_recording.webm';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    };
-
-    mediaRecorder.start();
-    isRecording = true;
-    recordButton.textContent = 'Остановить запись';
-}
-
-function stopRecording() {
-    if (mediaRecorder && isRecording) {
-        mediaRecorder.stop();
-        isRecording = false;
-        recordButton.textContent = 'Начать запись';
-    }
-}
-
 
 // --- Обработчик для кнопки меню (ранее toggleControlsButton) ---
 menuToggleButton.addEventListener('click', () => {

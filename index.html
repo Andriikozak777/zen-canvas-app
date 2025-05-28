@@ -4,8 +4,106 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Дзен-Холст: Максимально Улучшенная Версия</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js">
+    let mediaRecorder;
+    let recordedChunks = [];
+
+    const recordButton = document.createElement('button');
+    recordButton.id = "recordButton";
+    recordButton.className = "action-button";
+    recordButton.style.background = "linear-gradient(145deg, #f56565, #c53030)";
+    recordButton.textContent = translations[currentLanguage].recordStart;
+    controlsPanel.appendChild(recordButton);
+
+    recordButton.addEventListener('click', () => {
+        if (!mediaRecorder || mediaRecorder.state === "inactive") {
+            startRecording();
+            recordButton.textContent = translations[currentLanguage].recordStop;
+        } else if (mediaRecorder.state === "recording") {
+            stopRecording();
+            recordButton.textContent = translations[currentLanguage].recordStart;
+        }
+    });
+
+    function startRecording() {
+        const stream = canvas.captureStream(30);
+        mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+
+        mediaRecorder.ondataavailable = e => {
+            if (e.data.size > 0) recordedChunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = () => {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'zen-canvas-recording.webm';
+            a.click();
+            URL.revokeObjectURL(url);
+            recordedChunks = [];
+        };
+
+        mediaRecorder.start();
+    }
+
+    function stopRecording() {
+        if (mediaRecorder && mediaRecorder.state === "recording") {
+            mediaRecorder.stop();
+        }
+    }
+
+</script>
+    <script src="https://cdn.tailwindcss.com">
+    let mediaRecorder;
+    let recordedChunks = [];
+
+    const recordButton = document.createElement('button');
+    recordButton.id = "recordButton";
+    recordButton.className = "action-button";
+    recordButton.style.background = "linear-gradient(145deg, #f56565, #c53030)";
+    recordButton.textContent = translations[currentLanguage].recordStart;
+    controlsPanel.appendChild(recordButton);
+
+    recordButton.addEventListener('click', () => {
+        if (!mediaRecorder || mediaRecorder.state === "inactive") {
+            startRecording();
+            recordButton.textContent = translations[currentLanguage].recordStop;
+        } else if (mediaRecorder.state === "recording") {
+            stopRecording();
+            recordButton.textContent = translations[currentLanguage].recordStart;
+        }
+    });
+
+    function startRecording() {
+        const stream = canvas.captureStream(30);
+        mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+
+        mediaRecorder.ondataavailable = e => {
+            if (e.data.size > 0) recordedChunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = () => {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'zen-canvas-recording.webm';
+            a.click();
+            URL.revokeObjectURL(url);
+            recordedChunks = [];
+        };
+
+        mediaRecorder.start();
+    }
+
+    function stopRecording() {
+        if (mediaRecorder && mediaRecorder.state === "recording") {
+            mediaRecorder.stop();
+        }
+    }
+
+</script>
     <style>
         /* Основные стили для тела страницы (темная тема по умолчанию) */
         body {
@@ -793,6 +891,8 @@
         // --- Объект для переводов ---
         const translations = {
             ru: {
+                recordStart: '⏺️ Запись видео',
+                recordStop: '⏹️ Остановить запись',
                 overlayTitle: 'Дзен-Холст',
                 overlayText: 'Нажмите "Старт", чтобы начать медитативную мелодию и творить визуальное искусство.',
                 startButton: 'Старт',
@@ -843,6 +943,8 @@
             
             },
             uk: {
+                recordStart: '⏺️ Запис відео',
+                recordStop: '⏹️ Зупинити запис',
                 overlayTitle: 'Дзен-Полотно',
                 overlayText: 'Натисніть "Старт", щоб розпочати медитативну мелодію та творити візуальне мистецтво.',
                 startButton: 'Старт',
@@ -892,6 +994,8 @@
                 audioStartError: 'Не вдалося запустити. Будь ласка, спробуйте знову або перевірте налаштування браузера.',
             },
             en: {
+                recordStart: '⏺️ Start Recording',
+                recordStop: '⏹️ Stop Recording',
                 overlayTitle: 'Zen Canvas',
                 overlayText: 'Click "Start" to begin a meditative melody and create visual art.',
                 startButton: 'Start',
@@ -950,6 +1054,13 @@
             document.documentElement.lang = langCode; // Устанавливаем атрибут lang для HTML
 
             const currentTranslation = translations[langCode];
+            const recordButton = document.getElementById("recordButton");
+            if (recordButton) {
+                recordButton.textContent = (mediaRecorder && mediaRecorder.state === "recording")
+                    ? currentTranslation.recordStop
+                    : currentTranslation.recordStart;
+            }
+
 
             // Обновляем текст в оверлее
             document.getElementById('overlayTitle').textContent = currentTranslation.overlayTitle;
@@ -1950,8 +2061,7 @@
             animateParticles();
             updateGameInstructions();
         };
-    </script>
-    <script>
+    
     let mediaRecorder;
     let recordedChunks = [];
 
@@ -1959,16 +2069,16 @@
     recordButton.id = "recordButton";
     recordButton.className = "action-button";
     recordButton.style.background = "linear-gradient(145deg, #f56565, #c53030)";
-    recordButton.textContent = "⏺️ Запись видео";
+    recordButton.textContent = translations[currentLanguage].recordStart;
     controlsPanel.appendChild(recordButton);
 
     recordButton.addEventListener('click', () => {
         if (!mediaRecorder || mediaRecorder.state === "inactive") {
             startRecording();
-            recordButton.textContent = "⏹️ Остановить запись";
+            recordButton.textContent = translations[currentLanguage].recordStop;
         } else if (mediaRecorder.state === "recording") {
             stopRecording();
-            recordButton.textContent = "⏺️ Запись видео";
+            recordButton.textContent = translations[currentLanguage].recordStart;
         }
     });
 
@@ -1999,6 +2109,67 @@
             mediaRecorder.stop();
         }
     }
+
+</script>
+    <script>
+    // --- ВИДЕОЗАПИСЬ ХОЛСТА ---
+    let mediaRecorder;
+    
+
+    
+
+    
+
+    
+    
+    let mediaRecorder;
+    let recordedChunks = [];
+
+    const recordButton = document.createElement('button');
+    recordButton.id = "recordButton";
+    recordButton.className = "action-button";
+    recordButton.style.background = "linear-gradient(145deg, #f56565, #c53030)";
+    recordButton.textContent = translations[currentLanguage].recordStart;
+    controlsPanel.appendChild(recordButton);
+
+    recordButton.addEventListener('click', () => {
+        if (!mediaRecorder || mediaRecorder.state === "inactive") {
+            startRecording();
+            recordButton.textContent = translations[currentLanguage].recordStop;
+        } else if (mediaRecorder.state === "recording") {
+            stopRecording();
+            recordButton.textContent = translations[currentLanguage].recordStart;
+        }
+    });
+
+    function startRecording() {
+        const stream = canvas.captureStream(30);
+        mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+
+        mediaRecorder.ondataavailable = e => {
+            if (e.data.size > 0) recordedChunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = () => {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'zen-canvas-recording.webm';
+            a.click();
+            URL.revokeObjectURL(url);
+            recordedChunks = [];
+        };
+
+        mediaRecorder.start();
+    }
+
+    function stopRecording() {
+        if (mediaRecorder && mediaRecorder.state === "recording") {
+            mediaRecorder.stop();
+        }
+    }
+
 </script>
 </body>
 </html>

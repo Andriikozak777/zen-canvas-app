@@ -2112,16 +2112,6 @@
 
 </script>
     <script>
-    // --- ВИДЕОЗАПИСЬ ХОЛСТА ---
-    let mediaRecorder;
-    
-
-    
-
-    
-
-    
-    
     let mediaRecorder;
     let recordedChunks = [];
 
@@ -2132,9 +2122,9 @@
     recordButton.textContent = translations[currentLanguage].recordStart;
     controlsPanel.appendChild(recordButton);
 
-    recordButton.addEventListener('click', () => {
+    recordButton.addEventListener('click', async () => {
         if (!mediaRecorder || mediaRecorder.state === "inactive") {
-            startRecording();
+            await startRecording(); // теперь async
             recordButton.textContent = translations[currentLanguage].recordStop;
         } else if (mediaRecorder.state === "recording") {
             stopRecording();
@@ -2142,9 +2132,27 @@
         }
     });
 
-    function startRecording() {
-        const stream = canvas.captureStream(30);
-        mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+    async function startRecording() {
+        const canvas = document.getElementById('artCanvas');
+        const canvasStream = canvas.captureStream(60); // ⬆ 60 FPS
+
+        let combinedStream;
+
+        try {
+            // Получаем микрофон
+            const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            combinedStream = new MediaStream([
+                ...canvasStream.getVideoTracks(),
+                ...audioStream.getAudioTracks()
+            ]);
+        } catch (err) {
+            console.warn("⚠️ Не удалось получить звук, продолжаем только с видео");
+            combinedStream = canvasStream;
+        }
+
+        mediaRecorder = new MediaRecorder(combinedStream, {
+            mimeType: 'video/webm;codecs=vp9,opus'
+        });
 
         mediaRecorder.ondataavailable = e => {
             if (e.data.size > 0) recordedChunks.push(e.data);
@@ -2162,14 +2170,16 @@
         };
 
         mediaRecorder.start();
+        console.log("🎥 Запись началась (60 FPS, со звуком если доступен)");
     }
 
     function stopRecording() {
         if (mediaRecorder && mediaRecorder.state === "recording") {
             mediaRecorder.stop();
+            console.log("⏹️ Запись остановлена");
         }
     }
-
 </script>
+
 </body>
 </html>

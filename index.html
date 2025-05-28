@@ -2112,32 +2112,53 @@
 
 </script>
     <script>
-    // --- ВИДЕОЗАПИСЬ ХОЛСТА ---  
     let mediaRecorder;
     let recordedChunks = [];
 
+    // Добавляем кнопку записи
     const recordButton = document.createElement('button');
     recordButton.id = "recordButton";
     recordButton.className = "action-button";
     recordButton.style.background = "linear-gradient(145deg, #f56565, #c53030)";
-    recordButton.textContent = translations[currentLanguage].recordStart;
-    controlsPanel.appendChild(recordButton);
+    recordButton.textContent = translations[currentLanguage]?.recordStart || "🎥 Начать запись";
+    document.getElementById("controlsPanel").appendChild(recordButton);
 
-    recordButton.addEventListener('click', () => {
+    recordButton.addEventListener('click', async () => {
         if (!mediaRecorder || mediaRecorder.state === "inactive") {
-            startRecording();
-            recordButton.textContent = translations[currentLanguage].recordStop;
+            await startRecording();
+            recordButton.textContent = translations[currentLanguage]?.recordStop || "⏹️ Остановить запись";
         } else if (mediaRecorder.state === "recording") {
             stopRecording();
-            recordButton.textContent = translations[currentLanguage].recordStart;
+            recordButton.textContent = translations[currentLanguage]?.recordStart || "🎥 Начать запись";
         }
     });
 
-    function startRecording() {
-        const stream = canvas.captureStream(30);
-        mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+    async function startRecording() {
+        const canvas = document.getElementById('artCanvas');
+        const canvasStream = canvas.captureStream(60); // 60 FPS
 
-        mediaRecorder.ondataavailable = e => {
+        // Убедимся, что Tone.js активен
+        await Tone.start();
+
+        // Подключение аудио из Tone.js
+        const audioCtx = Tone.context.rawContext;
+        const audioDestination = audioCtx.createMediaStreamDestination();
+        Tone.getDestination().connect(audioDestination);
+
+        // Объединяем видео и аудио
+        const combinedStream = new MediaStream([
+            ...canvasStream.getVideoTracks(),
+            ...audioDestination.stream.getAudioTracks()
+        ]);
+
+        // Проверим звук
+        console.log("🎧 Audio tracks:", audioDestination.stream.getAudioTracks());
+
+        mediaRecorder = new MediaRecorder(combinedStream, {
+            mimeType: 'video/webm;codecs=vp9,opus'
+        });
+
+        mediaRecorder.ondataavailable = (e) => {
             if (e.data.size > 0) recordedChunks.push(e.data);
         };
 
@@ -2146,21 +2167,40 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'zen-canvas-recording.webm';
+            a.download = 'zen-recording.webm';
             a.click();
             URL.revokeObjectURL(url);
             recordedChunks = [];
+
+            // Убираем индикатор
+            const status = document.getElementById("recordingStatus");
+            if (status) status.remove();
         };
 
         mediaRecorder.start();
+        console.log("🔴 Запись началась (60 FPS + звук)");
+
+        // Показать индикатор на экране
+        const status = document.createElement("div");
+        status.id = "recordingStatus";
+        status.style.position = "fixed";
+        status.style.top = "1rem";
+        status.style.right = "1rem";
+        status.style.background = "red";
+        status.style.color = "white";
+        status.style.padding = "0.5rem 1rem";
+        status.style.borderRadius = "0.5rem";
+        status.style.zIndex = "9999";
+        status.textContent = translations[currentLanguage]?.recording || "🔴 Идёт запись";
+        document.body.appendChild(status);
     }
 
     function stopRecording() {
         if (mediaRecorder && mediaRecorder.state === "recording") {
             mediaRecorder.stop();
+            console.log("🟢 Запись остановлена");
         }
     }
-
 </script>
 </body>
 </html>

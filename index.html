@@ -706,6 +706,7 @@
                 <option value="free-play" id="freePlayOption">Свободная игра</option>
                 <option value="echo-sphere" id="echoSphereOption">Эхо-сфера</option>
                 <option value="melody-maze" id="melodyMazeOption">Мелодичный лабиринт</option>
+                <option value="fire-mode" id="fireModeOption">🔥 Огонь</option>
             </select>
         </div>
         <div id="gameInstructions">
@@ -2202,5 +2203,118 @@
         }
     }
 </script>
+<div id="gallery" style="position:fixed;bottom:0;left:0;z-index:30;background:#0008;color:#fff;padding:1rem;max-height:200px;overflow:auto;">
+  <h3 id="galleryTitle">Галерея</h3>
+  <div id="galleryImages" style="display:flex;gap:0.5rem;flex-wrap:wrap;"></div>
+</div>
+
+<script>
+  const galleryImages = document.getElementById("galleryImages");
+  const saved = JSON.parse(localStorage.getItem("gallery") || "[]");
+  saved.forEach(src => {
+    const img = document.createElement("img");
+    img.src = src;
+    img.style.width = "80px";
+    img.style.border = "2px solid white";
+    galleryImages.appendChild(img);
+  });
+</script>
+<script>
+  const LANG = document.getElementById("languageSelect").value;
+
+  const quotesMap = {
+    ru: [
+      "Тишина — источник великой силы.",
+      "Будь водой, друг мой.",
+      "Наблюдай. Дыши. Отпускай.",
+      "Ты уже там, где нужно.",
+      "Все формы растворяются в покое."
+    ],
+    uk: [
+      "Тиша — джерело великої сили.",
+      "Будь водою, друже.",
+      "Спостерігай. Дихай. Відпускай.",
+      "Ти вже там, де треба.",
+      "Усі форми розчиняються в спокої."
+    ],
+    en: [
+      "Silence is a source of great strength.",
+      "Be water, my friend.",
+      "Observe. Breathe. Let go.",
+      "You are already where you need to be.",
+      "All forms dissolve in stillness."
+    ]
+  };
+
+  const galleryTitle = {
+    ru: "Галерея",
+    uk: "Галерея",
+    en: "Gallery"
+  };
+
+  const fireModeLabel = {
+    ru: "🔥 Огонь",
+    uk: "🔥 Вогонь",
+    en: "🔥 Fire"
+  };
+
+  document.getElementById("overlayText").textContent =
+    quotesMap[LANG][Math.floor(Math.random() * quotesMap[LANG].length)];
+
+  const hour = new Date().getHours();
+  if (hour >= 20 || hour < 8) {
+    document.body.classList.remove('light-theme');
+  } else {
+    document.body.classList.add('light-theme');
+  }
+
+  document.getElementById("themeToggleButton").addEventListener("click", () => {
+    document.body.classList.toggle("light-theme");
+  });
+
+  let isDrawing = false;
+  const canvas = document.getElementById("artCanvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  let lastX, lastY;
+
+  canvas.addEventListener("pointerdown", (e) => {
+    isDrawing = true;
+    [lastX, lastY] = [e.offsetX, e.offsetY];
+  });
+  canvas.addEventListener("pointermove", (e) => {
+    if (!isDrawing) return;
+    ctx.strokeStyle = "rgba(255,255,255,0.5)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.stroke();
+    [lastX, lastY] = [e.offsetX, e.offsetY];
+  });
+  canvas.addEventListener("pointerup", () => isDrawing = false);
+
+  document.getElementById("screenshotButton").addEventListener("click", () => {
+    const dataUrl = canvas.toDataURL();
+    let gallery = JSON.parse(localStorage.getItem("gallery") || "[]");
+    gallery.push(dataUrl);
+    localStorage.setItem("gallery", JSON.stringify(gallery));
+    alert("Скриншот сохранён!");
+    location.reload();
+  });
+
+  document.getElementById("startButton").addEventListener("click", () => {
+    const mode = document.getElementById("gameModeSelect").value;
+    if (mode === "fire-mode") {
+      canvas.style.background = "radial-gradient(circle, red, black)";
+    }
+    document.getElementById("overlay").classList.add("hidden");
+  });
+
+  document.getElementById("galleryTitle").textContent = galleryTitle[LANG];
+  document.getElementById("fireModeOption").textContent = fireModeLabel[LANG];
+</script>
+
 </body>
 </html>

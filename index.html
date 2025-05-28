@@ -891,8 +891,8 @@
         // --- Объект для переводов ---
         const translations = {
             ru: {
-                recordStart: '⏺️ Запись видео',
-                recordStop: '⏹️ Остановить запись',
+                recordStart: "🎥 Начать запись",
+                recordStop: "⏹️ Остановить запись",
                 overlayTitle: 'Дзен-Холст',
                 overlayText: 'Нажмите "Старт", чтобы начать медитативную мелодию и творить визуальное искусство.',
                 startButton: 'Старт',
@@ -943,7 +943,7 @@
             
             },
             uk: {
-                recordStart: '⏺️ Запис відео',
+                recordStart: '🎥 Запис відео',
                 recordStop: '⏹️ Зупинити запис',
                 overlayTitle: 'Дзен-Полотно',
                 overlayText: 'Натисніть "Старт", щоб розпочати медитативну мелодію та творити візуальне мистецтво.',
@@ -994,7 +994,7 @@
                 audioStartError: 'Не вдалося запустити. Будь ласка, спробуйте знову або перевірте налаштування браузера.',
             },
             en: {
-                recordStart: '⏺️ Start Recording',
+                recordStart: '🎥 Start Recording',
                 recordStop: '⏹️ Stop Recording',
                 overlayTitle: 'Zen Canvas',
                 overlayText: 'Click "Start" to begin a meditative melody and create visual art.',
@@ -2111,27 +2111,29 @@
     }
 
 </script>
+    </script>
     <script>
     let mediaRecorder;
     let recordedChunks = [];
 
     // Кнопка записи
     const recordButton = document.createElement('button');
-    recordButton.id = "recordButton";
-    recordButton.className = "action-button";
-    recordButton.style.background = "linear-gradient(145deg, #f56565, #c53030)";
-    recordButton.textContent = "🎥 Начать запись";
-    document.getElementById("controlsPanel").appendChild(recordButton);
+recordButton.id = "recordButton";
+recordButton.className = "action-button";
+recordButton.style.background = "linear-gradient(145deg, #f56565, #c53030)";
+recordButton.textContent = translations[currentLanguage].recordStart; // 🔁 перевод
+document.getElementById("controlsPanel").appendChild(recordButton);
 
-    recordButton.addEventListener('click', async () => {
-        if (!mediaRecorder || mediaRecorder.state === "inactive") {
-            await startRecording();
-            recordButton.textContent = "⏹️ Остановить запись";
-        } else if (mediaRecorder.state === "recording") {
-            stopRecording();
-            recordButton.textContent = "🎥 Начать запись";
-        }
-    });
+recordButton.addEventListener('click', async () => {
+    if (!mediaRecorder || mediaRecorder.state === "inactive") {
+        await startRecording();
+        recordButton.textContent = translations[currentLanguage].recordStop; // 🔁 перевод
+    } else if (mediaRecorder.state === "recording") {
+        stopRecording();
+        recordButton.textContent = translations[currentLanguage].recordStart; // 🔁 перевод
+    }
+});
+
 
     async function startRecording() {
         const canvas = document.getElementById('artCanvas');

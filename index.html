@@ -1950,5 +1950,59 @@
             updateGameInstructions();
         };
     </script>
+    <script>
+    let recorder;
+    let recordedChunks = [];
+
+    // Создаём кнопку записи
+    const recordButton = document.createElement('button');
+    recordButton.textContent = '⏺️ Запись';
+    recordButton.className = 'action-button';
+    recordButton.style.background = 'linear-gradient(145deg, #f56565, #c53030)';
+    controlsPanel.appendChild(recordButton);
+
+    recordButton.addEventListener('click', () => {
+        if (!recorder || recorder.state === "inactive") {
+            startRecording();
+            recordButton.textContent = '⏹️ Стоп';
+        } else if (recorder.state === "recording") {
+            stopRecording();
+            recordButton.textContent = '⏺️ Запись';
+        }
+    });
+
+    function startRecording() {
+        const stream = canvas.captureStream(30); // 30 FPS
+        recorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp9' });
+
+        recorder.ondataavailable = (e) => {
+            if (e.data.size > 0) {
+                recordedChunks.push(e.data);
+            }
+        };
+
+        recorder.onstop = () => {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'zen-canvas-recording.webm';
+            a.click();
+
+            URL.revokeObjectURL(url);
+            recordedChunks = [];
+        };
+
+        recorder.start();
+    }
+
+    function stopRecording() {
+        if (recorder && recorder.state === "recording") {
+            recorder.stop();
+        }
+    }
+</script>
+
 </body>
 </html>

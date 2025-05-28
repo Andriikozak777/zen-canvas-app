@@ -1950,5 +1950,62 @@
             updateGameInstructions();
         };
     </script>
+    <script>
+    // --- ВИДЕОЗАПИСЬ ХОЛСТА ---
+    let mediaRecorder;
+    let recordedChunks = [];
+
+    const recordButton = document.createElement('button');
+    recordButton.id = "recordButton";
+    recordButton.className = "action-button";
+    recordButton.style.background = "linear-gradient(145deg, #f56565, #c53030)";
+    recordButton.textContent = "⏺️ Запись видео";
+
+    // Добавляем кнопку в панель
+    controlsPanel.appendChild(recordButton);
+
+    recordButton.addEventListener('click', () => {
+        if (!mediaRecorder || mediaRecorder.state === "inactive") {
+            startRecording();
+            recordButton.textContent = "⏹️ Остановить запись";
+        } else if (mediaRecorder.state === "recording") {
+            stopRecording();
+            recordButton.textContent = "⏺️ Запись видео";
+        }
+    });
+
+    function startRecording() {
+        const canvasStream = canvas.captureStream(30); // 30 FPS
+        mediaRecorder = new MediaRecorder(canvasStream, { mimeType: "video/webm" });
+
+        mediaRecorder.ondataavailable = function(e) {
+            if (e.data.size > 0) recordedChunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = function() {
+            const blob = new Blob(recordedChunks, { type: "video/webm" });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "zen-canvas-recording.webm";
+            a.click();
+
+            URL.revokeObjectURL(url);
+            recordedChunks = [];
+        };
+
+        mediaRecorder.start();
+        console.log("🔴 Recording started");
+    }
+
+    function stopRecording() {
+        if (mediaRecorder && mediaRecorder.state === "recording") {
+            mediaRecorder.stop();
+            console.log("⏹️ Recording stopped");
+        }
+    }
+</script>
+
 </body>
 </html>

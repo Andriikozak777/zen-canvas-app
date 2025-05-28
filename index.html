@@ -840,6 +840,9 @@
                 melodyMazeInstructions: '<strong>Мелодичный лабиринт:</strong> Проведите мышью/пальцем вдоль синей линии, чтобы услышать мелодию. Новый лабиринт при каждом запуске!',
                 selectGameModeInstructions: 'Выберите режим игры.',
                 audioStartError: 'Не удалось запустить. Пожалуйста, попробуйте снова или проверьте настройки браузера.'
+                recordButtonStart: '⏺️ Запись видео',
+                recordButtonStop: '⏹️ Остановить запись'
+            
             },
             uk: {
                 overlayTitle: 'Дзен-Полотно',
@@ -888,7 +891,9 @@
                 echoSphereInstructions: '<strong>Ехо-сфера:</strong> Натисніть і утримуйте мишу/палець, щоб створити звукову сферу. Відпустіть, щоб зупинити.',
                 melodyMazeInstructions: '<strong>Мелодійний лабіринт:</strong> Проведіть мишею/пальцем уздовж синьої лінії, щоб почути мелодію. Новий лабіринт при кожному запуску!',
                 selectGameModeInstructions: 'Виберіть режим гри.',
-                audioStartError: 'Не вдалося запустити. Будь ласка, спробуйте знову або перевірте налаштування браузера.'
+                audioStartError: 'Не вдалося запустити. Будь ласка, спробуйте знову або перевірте налаштування браузера.',
+                recordButtonStart: '⏺️ Запис відео',
+                recordButtonStop: '⏹️ Зупинити запис'
             },
             en: {
                 overlayTitle: 'Zen Canvas',
@@ -937,7 +942,9 @@
                 echoSphereInstructions: '<strong>Echo Sphere:</strong> Press and hold your mouse/finger to create a sound sphere. Release to stop.',
                 melodyMazeInstructions: '<strong>Melody Maze:</strong> Drag your mouse/finger along the blue line to hear a melody. A new maze each time!',
                 selectGameModeInstructions: 'Select a game mode.',
-                audioStartError: 'Failed to start. Please try again or check your browser settings.'
+                audioStartError: 'Failed to start. Please try again or check your browser settings.',
+                recordButtonStart: '⏺️ Record Video',
+                recordButtonStop: '⏹️ Stop Recording'
             }
         };
 
@@ -1959,7 +1966,7 @@
     recordButton.id = "recordButton";
     recordButton.className = "action-button";
     recordButton.style.background = "linear-gradient(145deg, #f56565, #c53030)";
-    recordButton.textContent = "⏺️ Запись видео";
+    recordButton.textContent = translations[currentLanguage].recordButtonStart;
 
     // Добавляем кнопку в панель
     controlsPanel.appendChild(recordButton);
@@ -1967,10 +1974,10 @@
     recordButton.addEventListener('click', () => {
         if (!mediaRecorder || mediaRecorder.state === "inactive") {
             startRecording();
-            recordButton.textContent = "⏹️ Остановить запись";
+            recordButton.textContent = translations[currentLanguage].recordButtonStop;
         } else if (mediaRecorder.state === "recording") {
             stopRecording();
-            recordButton.textContent = "⏺️ Запись видео";
+            recordButton.textContent = translations[currentLanguage].recordButtonStart;
         }
     });
 
